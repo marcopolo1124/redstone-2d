@@ -1,6 +1,12 @@
 from Mechanism import AbstractPiston, AbstractStickyPiston, MechanicalBlock
 from Block import Block, Placeable
-from Redstone import RedstoneBlock, Redstone, RedstoneTorch, RedstoneRepeater, RedstoneRepeaterBlock
+from Redstone import (
+    RedstoneBlock,
+    Redstone,
+    RedstoneTorch,
+    RedstoneRepeater,
+    RedstoneRepeaterBlock,
+)
 
 images = [
     "dirt.png",
@@ -13,7 +19,7 @@ images = [
     "redstone_dust_powered.png",
     "redstone_dust_unpowered.png",
     "redstone_repeater_on.png",
-    "redstone_repeater_off.png"
+    "redstone_repeater_off.png",
 ]
 
 piston_blk = MechanicalBlock("p", True, "piston_side.png")
@@ -50,7 +56,7 @@ redstone_repeater = RedstoneRepeaterBlock(
     True,
     RedstoneRepeater([2], [0]),
     "redstone_repeater_on.png",
-    "redstone_repeater_off.png"
+    "redstone_repeater_off.png",
 )
 
 placeable_list: list[Placeable] = [
@@ -60,7 +66,7 @@ placeable_list: list[Placeable] = [
     piston,
     sticky_piston,
     obsidian,
-    redstone_repeater
+    redstone_repeater,
 ]
 block_list: list[Block] = [
     dirt_block,
@@ -72,5 +78,5 @@ block_list: list[Block] = [
     piston_head,
     sticky_piston_head,
     obsidian,
-    redstone_repeater
+    redstone_repeater,
 ]

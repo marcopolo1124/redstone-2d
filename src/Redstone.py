@@ -6,6 +6,7 @@ redstone_placement = {}
 
 class Redstone:
     traversed = set()
+
     def __init__(self, input_ports: list[int], output_ports: list[int], power: int = 0):
         # ports are numbered 0 - 3, 0 -> up, 1 -> right, 2, down, 3, left
         self.output_ports = output_ports
@@ -14,7 +15,7 @@ class Redstone:
 
     def __repr__(self):
         return f"Redstone({self.output_ports}, {self.input_ports})"
-    
+
     def get_power(self, x, y):
         max_power = 0
         prev_blocks = self.get_prev_blocks(x, y)
@@ -26,9 +27,9 @@ class Redstone:
     def place(self, x, y, orientation):
         if (x, y) in redstone_placement:
             return
-        
+
         power = self.power
-        
+
         redstone_placement[(x, y)] = {
             "redstone": self,
             "power": self.power,
@@ -198,7 +199,7 @@ class RedstoneTorch(RedstoneSource):
         if max_power > 0:
             return 0
         return self.power
-    
+
     def destroy(self, x, y):
         super().destroy(x, y)
         self.torches.remove((x, y))
@@ -207,7 +208,7 @@ class RedstoneTorch(RedstoneSource):
     def listen(self):
         state_changed = False
         for torch in self.torches:
-            curr_state_changed, new_state =  self.detect_state_change(*torch)
+            curr_state_changed, new_state = self.detect_state_change(*torch)
             self.redstone_sources[torch] = new_state
             state_changed = state_changed or curr_state_changed
 
@@ -259,7 +260,7 @@ class RedstoneRepeater(RedstoneSource):
         else:
             self.reset_off_delay(x, y)
         return redstone_placement[(x, y)]["power"]
-    
+
     def place(self, x, y, orientation):
         if (x, y) in redstone_placement:
             return
@@ -275,7 +276,6 @@ class RedstoneRepeater(RedstoneSource):
                 power = rs_blk["power"] - 1
                 self.traversed.add((x, y))
 
-        
         self.repeaters[(x, y)] = {"delay": 0, "on_delay": -1, "off_delay": -1}
         redstone_placement[(x, y)]["redstone"].set_power(x, y, power)
         self.redstone_sources[(x, y)] = False
@@ -286,32 +286,36 @@ class RedstoneRepeater(RedstoneSource):
         tick %= self.max_tick
         print(tick)
         self.repeaters[(x, y)]["delay"] = tick
-        
+
     def update_delay(self, x, y):
         delay = self.repeaters[(x, y)]["delay"]
         self.set_delay(x, y, delay + 1)
 
     @classmethod
     def reset_on_delay(self, x, y):
-        if self.repeaters[(x, y)]["on_delay"] < 0 and redstone_placement[(x, y)]["power"] <= 0:
+        if (
+            self.repeaters[(x, y)]["on_delay"] < 0
+            and redstone_placement[(x, y)]["power"] <= 0
+        ):
             delay = self.repeaters[(x, y)]["delay"]
             self.repeaters[(x, y)]["on_delay"] = delay
-        
+
     @classmethod
     def reset_off_delay(self, x, y):
-        if self.repeaters[(x, y)]["off_delay"] < 0 and redstone_placement[(x, y)]["power"] > 0:
+        if (
+            self.repeaters[(x, y)]["off_delay"] < 0
+            and redstone_placement[(x, y)]["power"] > 0
+        ):
             self.repeaters[(x, y)]["off_delay"] = self.repeaters[(x, y)]["delay"]
 
     def destroy(self, x, y):
         super().destroy(x, y)
         del self.repeaters[(x, y)]
-    
+
     @classmethod
     def listen(self):
         changed_state = False
         for repeater, state in self.repeaters.items():
-
-            
             if state["on_delay"] == 0:
                 redstone_placement[repeater]["power"] = self.on_power
                 state["on"] = True
@@ -325,7 +329,7 @@ class RedstoneRepeater(RedstoneSource):
                 state["on"] = False
                 changed_state = True
                 state["off_delay"] -= 1
-                
+
             if state["on_delay"] > 0 and state["off_delay"] > 0:
                 if state["on_delay"] > state["off_delay"]:
                     state["off_delay"] -= 1
@@ -343,10 +347,10 @@ class RedstoneRepeater(RedstoneSource):
 class RedstoneRepeaterBlock(RedstoneBlock):
     def __init__(self, name, pushable, redstone: RedstoneRepeater, on_image, off_image):
         super().__init__(name, pushable, redstone, on_image, off_image)
-        self.redstone = redstone        
-    
+        self.redstone = redstone
+
     def __repr__(self):
         return f"RedstoneRepeaterBlock"
-    
+
     def interact(self, x, y):
         self.redstone.update_delay(x, y)

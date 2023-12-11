@@ -3,33 +3,31 @@ from config import world_size
 world_map = [[None] * world_size[0] for _ in range(world_size[1])]
 ORIENTATIONS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
-class Placeable():
+
+class Placeable:
     def place(self, x, y, orientation):
         raise NotImplementedError
-    
+
     @classmethod
     def break_block(self, x, y):
         raise NotImplementedError
-    
+
     @classmethod
     def interact(self, x, y):
         return
 
 
 class Block(Placeable):
-
     def __init__(self, name: str, pushable: bool = True, image_name=""):
         self.name = name
         self.pushable = pushable
         self.image_name = image_name
-    
-    
+
     def image(self, x, y):
         if len(self.image_name) > 0:
             return self.image_name, Block.get_block_orientation(x, y)
         return None
 
-    
     def __repr__(self):
         return f"Block({self.name}, {self.pushable})"
 
@@ -78,10 +76,7 @@ class Block(Placeable):
             }
 
     def place(self, x: int, y: int, orientation: int):
-        if (
-            self.is_inbound(x, y)
-            and world_map[x][y] is None
-        ):
+        if self.is_inbound(x, y) and world_map[x][y] is None:
             world_map[x][y] = {"block": self, "orientation": orientation % 4}
             return True
         return False
@@ -124,7 +119,3 @@ class Block(Placeable):
             blk.place(dest_x, dest_y, orientation)
             return True
         return False
-
-
-
-
